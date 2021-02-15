@@ -1,0 +1,22 @@
+include AUTHORS.rst
+include CONTRIBUTING.rst
+include HISTORY.rst
+include LICENSE
+include README.rst
+
+graft src/beaker/templates
+graft src/beaker/static
+graft src/beaker/data
+graft src/beaker/assets
+
+recursive-include src/beaker/ templates/*.html
+recursive-include src/beaker/ templates/**/*.html
+recursive-include src/beaker/ data/*
+recursive-include src/beaker/ *.py
+recursive-include src/beaker/ *.cfg
+
+recursive-include tests *
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+
+recursive-include docs *.rst conf.py Makefile make.bat *.jpg *.png *.gif
