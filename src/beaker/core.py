@@ -97,9 +97,9 @@ def initalize_modules(app: Flask, root: Optional[str] = None) -> None:
             mod.init_app(app)
 
 
-def get_instance_root() -> str:
+def get_instance_root(filename) -> str:
     # <root>/src|lib?/package/module.py
-    parts = os.path.normpath(os.path.dirname(__file__)).split(os.path.sep)
+    parts = os.path.normpath(os.path.dirname(filename)).split(os.path.sep)
     if parts[-2] in ("src", "lib"):
         instance_parts = parts[:-2]
     else:
@@ -108,14 +108,17 @@ def get_instance_root() -> str:
 
 
 def create_app(
-    name: str, plugins: Optional[List[Plugin]] = None, instance_path: Optional[Union[os.PathLike, str]] = "instance"
+    name: str,
+    plugins: Optional[List[Plugin]] = None,
+    instance_path: Optional[Union[os.PathLike, str]] = "instance",
+    filename: Optional[str] = None,
 ) -> Flask:
     """Set up a flask app"""
 
     # Ensure that pynab has a logger during configuration, to prevent FLASK from adding its own.
     setup_null_handler(name)
 
-    instance_root = get_instance_root()
+    instance_root = get_instance_root(filename or __file__)
     if instance_path is None:
         instance_path = instance_root
     else:
@@ -123,10 +126,10 @@ def create_app(
     instance_path = os.path.abspath(instance_path)
     app = Flask(name, instance_relative_config=True, instance_path=instance_path)
 
-    defaults = os.path.abspath(pkg_resources.resource_filename(__name__, "data/config/defaults.cfg"))
+    defaults = os.path.abspath(pkg_resources.resource_filename(name, "data/config/defaults.cfg"))
     app.config.from_pyfile(defaults)
 
-    env_defaults = os.path.abspath(pkg_resources.resource_filename(__name__, f"data/config/{app.env!s}.cfg"))
+    env_defaults = os.path.abspath(pkg_resources.resource_filename(name, f"data/config/{app.env!s}.cfg"))
     try:
         app.config.from_pyfile(env_defaults)
     except FileNotFoundError:
